@@ -19,7 +19,7 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
-  const isLoggedIn = true; 
+  const isLoggedIn = false; 
   const user = { name: "John Doe", email: "john@example.com", avatar: "" };
   const isActive = (path) => pathname === path;
 
@@ -67,11 +67,11 @@ export default function Navbar() {
               {/* Auth Configuration */}
               {!isLoggedIn ? (
                 <div className="flex items-center space-x-3">
-                  <Link href="/login" className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+                  <Link href="/auth/signin" className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
                     <ArrowRightToLine className="w-4 h-4" />
                     <span>Login</span>
                   </Link>
-                  <Link href="/register" className="flex items-center space-x-1 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
+                  <Link href="/auth/signup" className="flex items-center space-x-1 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
                     <PersonPlus className="w-4 h-4" />
                     <span>Register</span>
                   </Link>
@@ -180,11 +180,11 @@ export default function Navbar() {
                 <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/50 text-center">
                   <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">Welcome to TicketBari</p>
                   <div className="grid grid-cols-2 gap-3">
-                    <Link href="/login" onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center space-x-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-50 transition">
+                    <Link href="/auth/signin" onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center space-x-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-50 transition">
                       <ArrowRightToLine className="w-4 h-4 text-gray-500" />
                       <span>Login</span>
                     </Link>
-                    <Link href="/register" onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center space-x-1.5 bg-blue-600 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-700 transition">
+                    <Link href="/auth/signup" onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center space-x-1.5 bg-blue-600 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-700 transition">
                       <PersonPlus className="w-4 h-4" />
                       <span>Register</span>
                     </Link>
