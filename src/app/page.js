@@ -7,8 +7,8 @@ import Image from "next/image";
 export default function Home() {
   return (
     <div>
-      {/* <Banner></Banner> */}
-      {/* <TicketSearchBar></TicketSearchBar> */}
+      <Banner></Banner>
+      <TicketSearchBar></TicketSearchBar>
       {/* <PopularRoutes></PopularRoutes> */}
       {/* <Features></Features> */}
     </div>
