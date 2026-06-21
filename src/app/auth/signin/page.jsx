@@ -32,7 +32,7 @@ export default function SignInPage() {
       const { data, error: authError } = await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/", // Change to your preferred post-login route
+        callbackURL: "/",
       });
 
       if (authError) {
