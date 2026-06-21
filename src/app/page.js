@@ -9,7 +9,7 @@ export default function Home() {
     <div>
       <Banner></Banner>
       <TicketSearchBar></TicketSearchBar>
-      {/* <PopularRoutes></PopularRoutes> */}
+      <PopularRoutes></PopularRoutes>
       {/* <Features></Features> */}
     </div>
   );
