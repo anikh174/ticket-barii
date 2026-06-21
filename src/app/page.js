@@ -10,7 +10,7 @@ export default function Home() {
       <Banner></Banner>
       <TicketSearchBar></TicketSearchBar>
       <PopularRoutes></PopularRoutes>
-      {/* <Features></Features> */}
+      <Features></Features>
     </div>
   );
 }
