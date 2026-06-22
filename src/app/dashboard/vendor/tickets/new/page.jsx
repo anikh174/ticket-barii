@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Form, Input, Select, Label, Description, ListBox, Checkbox, CheckboxGroup, Button } from "@heroui/react";
 import { Calendar, Person, Ticket } from "@gravity-ui/icons";
+import { createTickets } from "@/lib/actions/tickets";
+import { useSession } from "@/lib/auth-client";
 
 export default function AddTicketForm() {
   const [loading, setLoading] = useState(false);
@@ -10,10 +12,9 @@ export default function AddTicketForm() {
   const [imageFile, setImageFile] = useState(null);
   const [transportType, setTransportType] = useState("");
 
-  const vendorData = {
-    name: "vendor",
-    email: "vendor123@gmail.com",
-  };
+  // ১. সেশন ডাটা কল করা হয়েছে
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
 
   const transportTypes = [
     { key: "bus", label: "Bus", desc: "Comfortable road trips" },
@@ -44,49 +45,52 @@ export default function AddTicketForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // সেশন চেক: ইউজার লগইন না থাকলে সাবমিট করতে দেওয়া হবে না
+    if (!user) {
+      alert("You must be logged in to create a ticket.");
+      return;
+    }
+
     if (!transportType) {
       alert("Please select a transport type.");
       return;
     }
+    
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const formValues = Object.fromEntries(formData);
-
-    let imageUrl = "";
-    if (imageFile) {
-      imageUrl = await uploadToImgbb(imageFile);
-      if (!imageUrl) {
-        setLoading(false);
-        return;
-      }
-    }
-
-    const ticketPayload = {
-      title: formValues.title,
-      fromLocation: formValues.fromLocation,
-      toLocation: formValues.toLocation,
-      transportType: transportType,
-      price: parseFloat(formValues.price),
-      quantity: parseInt(formValues.quantity),
-      departureDateTime: formValues.departureDateTime,
-      perks: perks,
-      imageUrl: imageUrl,
-      vendorName: vendorData.name,
-      vendorEmail: vendorData.email,
-      status: "pending",
-    };
-
-    console.log("Form submitted successfully! Current Payload Data:", ticketPayload);
-
     try {
-      const response = await fetch("/api/tickets/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ticketPayload),
-      });
+      const formData = new FormData(e.currentTarget);
+      const formValues = Object.fromEntries(formData);
 
-      if (response.ok) {
+      let imageUrl = "";
+      if (imageFile) {
+        imageUrl = await uploadToImgbb(imageFile);
+        if (!imageUrl) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      // ২. পেলোডে মক ডাটার বদলে রিয়েল 'user' অবজেক্টের ডাটা পাঠানো হয়েছে
+      const ticketPayload = {
+        title: formValues.title,
+        fromLocation: formValues.fromLocation,
+        toLocation: formValues.toLocation,
+        transportType: transportType,
+        price: parseFloat(formValues.price),
+        quantity: parseInt(formValues.quantity),
+        departureDateTime: formValues.departureDateTime,
+        perks: perks,
+        imageUrl: imageUrl,
+        vendorName: user.name,   // ফিক্সড: রিয়েল ডাটা
+        vendorEmail: user.email, // ফিক্সড: রিয়েল ডাটা
+        status: "pending",
+      };
+
+      const res = await createTickets(ticketPayload);
+
+      if (res) {
         alert("Ticket added successfully! Awaiting verification.");
         e.target.reset();
         setPerks([]);
@@ -97,12 +101,18 @@ export default function AddTicketForm() {
       }
     } catch (error) {
       console.error("Submission error:", error);
+      alert("An error occurred while saving the ticket.");
     } finally {
       setLoading(false);
     }
   };
 
   const availablePerks = ["AC", "WiFi", "Food", "TV", "Charging Port", "Breakfast"];
+
+  // ৩. সেশন লোড হওয়ার সময় একটি সিম্পল লোডিং স্টেট দেখানো
+  if (isPending) {
+    return <div className="text-center my-8 text-gray-500">Loading session...</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto my-8 p-6 bg-[#f8fafc] border border-gray-100 rounded-xl shadow-sm">
@@ -208,7 +218,7 @@ export default function AddTicketForm() {
           </div>
         </div>
 
-        {/* Perks Checkboxes (Fixed Grid Layout with Tailwind) */}
+        {/* Perks Checkboxes */}
         <div className="w-full flex flex-col gap-2 my-1">
           <CheckboxGroup
             value={perks}
@@ -217,7 +227,6 @@ export default function AddTicketForm() {
           >
             <Label className="text-sm font-semibold text-gray-700">Perks</Label>
             
-            {/* Responsiveness Grid Structure */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
               {availablePerks.map((perk) => (
                 <Checkbox 
@@ -226,12 +235,10 @@ export default function AddTicketForm() {
                   className="group w-full cursor-pointer select-none rounded-xl border border-gray-200 bg-white p-3 transition-all hover:bg-gray-50 data-[selected=true]:border-teal-500 data-[selected=true]:bg-teal-50/40"
                 >
                   <Checkbox.Content className="w-full flex items-center gap-3">
-                    {/* Custom Styled Icon Box */}
                     <Checkbox.Control className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center transition-colors bg-white group-data-[selected=true]:bg-teal-600 group-data-[selected=true]:border-teal-600">
                       <Checkbox.Indicator className="text-white text-[10px]" />
                     </Checkbox.Control>
                     
-                    {/* Label Alignment */}
                     <Label className="cursor-pointer text-sm font-medium text-gray-700 group-data-[selected=true]:text-teal-900">
                       {perk}
                     </Label>
@@ -263,7 +270,8 @@ export default function AddTicketForm() {
             <Input
               readOnly
               name="vendorName"
-              defaultValue={vendorData.name}
+              defaultValue={user?.name || ""}
+              key={user?.name} // সেশন লোড হওয়ার পর রি-রেন্ডার নিশ্চিত করতে key যোগ করা হয়েছে
               variant="flat"
               className="bg-gray-100 rounded-lg opacity-80 w-full pl-7"
             />
@@ -271,7 +279,8 @@ export default function AddTicketForm() {
           <Input
             readOnly
             name="vendorEmail"
-            defaultValue={vendorData.email}
+            defaultValue={user?.email || ""}
+            key={user?.email}
             variant="flat"
             className="bg-gray-100 rounded-lg opacity-80"
           />
