@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card } from "@heroui/react";
-import { Eye, EyeSlash, At, Shield, CircleCheck, TriangleExclamationFill } from "@gravity-ui/icons";
+import { Eye, EyeSlash, At, Shield, CircleCheck, TriangleExclamationFill, Xmark } from "@gravity-ui/icons";
 import { authClient } from "@/lib/auth-client"; 
+import toast from "react-hot-toast";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -22,11 +23,10 @@ export default function SignInPage() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSignIn = async (e) => {
+const handleSignIn = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       const { data, error: authError } = await authClient.signIn.email({
@@ -38,10 +38,62 @@ export default function SignInPage() {
       if (authError) {
         setError(authError.message || "Invalid email or password.");
       } else {
-        setSuccess("Welcome back! Redirecting...");
         setEmail("");
         setPassword("");
         
+        const duration = 4000;
+
+        toast.custom((t) => (
+          <div
+            className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } relative max-w-md w-full bg-white dark:bg-gray-900 shadow-xl rounded-2xl pointer-events-auto flex flex-col ring-1 ring-black/5 dark:ring-white/10 overflow-hidden border border-gray-100 dark:border-gray-800 transition-all duration-300`}
+          >
+
+            <div className="flex p-4 pb-5">
+              <div className="flex-1 w-0 flex items-center">
+
+                <div className="flex-shrink-0 bg-blue-50 dark:bg-blue-950/40 p-2.5 rounded-xl">
+                  <CircleCheck className="w-5 h-5 text-blue-600 dark:text-blue-500" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    Welcome Back!
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    Successfully signed in. Redirecting to your journeys...
+                  </p>
+                </div>
+              </div>
+              
+
+              <div className="ml-4 flex-shrink-0 flex border-l border-gray-100 dark:border-gray-800 pl-4 items-center">
+                <button
+                  onClick={() => toast.dismiss(t.id)}
+                  className="p-1 flex items-center justify-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
+                >
+                  <Xmark className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+
+            <div className="absolute bottom-0 left-0 right-0 w-full h-1 bg-gray-100 dark:bg-gray-800">
+              <div 
+                className="h-full bg-blue-600 dark:bg-blue-500" // TicketBari-র থিম কালার ব্লু
+                style={{
+                  animation: `shrinkWidth ${duration}ms linear forwards`,
+                  transformOrigin: 'left'
+                }}
+              />
+            </div>
+          </div>
+        ), {
+          duration: duration,
+          position: 'top-center'
+        });
+
+
         setTimeout(() => {
           router.push("/");
         }, 1500);
