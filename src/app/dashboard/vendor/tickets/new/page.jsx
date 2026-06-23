@@ -5,6 +5,9 @@ import { Form, Input, Select, Label, Description, ListBox, Checkbox, CheckboxGro
 import { Calendar, Person, Ticket } from "@gravity-ui/icons";
 import { createTickets } from "@/lib/actions/tickets";
 import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Bus, Train, Plane, Car } from "lucide-react";
 
 export default function AddTicketForm() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +15,7 @@ export default function AddTicketForm() {
   const [imageFile, setImageFile] = useState(null);
   const [transportType, setTransportType] = useState("");
 
-  // ১. সেশন ডাটা কল করা হয়েছে
+  const router = useRouter();
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
@@ -38,7 +41,7 @@ export default function AddTicketForm() {
       throw new Error("Imgbb upload failed");
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image.");
+      toast.error("Failed to upload image.");
       return null;
     }
   };
@@ -46,14 +49,13 @@ export default function AddTicketForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // সেশন চেক: ইউজার লগইন না থাকলে সাবমিট করতে দেওয়া হবে না
     if (!user) {
-      alert("You must be logged in to create a ticket.");
+      toast.error("You must be logged in to create a ticket.");
       return;
     }
 
     if (!transportType) {
-      alert("Please select a transport type.");
+      toast.error("Please select a transport type.");
       return;
     }
     
@@ -72,7 +74,6 @@ export default function AddTicketForm() {
         }
       }
 
-      // ২. পেলোডে মক ডাটার বদলে রিয়েল 'user' অবজেক্টের ডাটা পাঠানো হয়েছে
       const ticketPayload = {
         title: formValues.title,
         fromLocation: formValues.fromLocation,
@@ -83,25 +84,27 @@ export default function AddTicketForm() {
         departureDateTime: formValues.departureDateTime,
         perks: perks,
         imageUrl: imageUrl,
-        vendorName: user.name,   // ফিক্সড: রিয়েল ডাটা
-        vendorEmail: user.email, // ফিক্সড: রিয়েল ডাটা
+        vendorName: user.name,  
+        vendorEmail: user.email,
         status: "pending",
       };
 
       const res = await createTickets(ticketPayload);
 
       if (res) {
-        alert("Ticket added successfully! Awaiting verification.");
+        toast.success("Ticket added successfully! Awaiting verification.");
         e.target.reset();
         setPerks([]);
         setImageFile(null);
         setTransportType("");
+        
+        router.push("/dashboard/vendor");
       } else {
-        alert("Failed to save ticket to database.");
+        toast.error("Failed to save ticket to database.");
       }
     } catch (error) {
       console.error("Submission error:", error);
-      alert("An error occurred while saving the ticket.");
+      toast.error("An error occurred while saving the ticket.");
     } finally {
       setLoading(false);
     }
@@ -109,9 +112,42 @@ export default function AddTicketForm() {
 
   const availablePerks = ["AC", "WiFi", "Food", "TV", "Charging Port", "Breakfast"];
 
-  // ৩. সেশন লোড হওয়ার সময় একটি সিম্পল লোডিং স্টেট দেখানো
   if (isPending) {
-    return <div className="text-center my-8 text-gray-500">Loading session...</div>;
+    return <div className="flex flex-col items-center justify-center min-h-[60vh] w-full p-6 bg-white transition-colors duration-300">
+      
+      {/* Dynamic Animated Transport Center Core */}
+      <div className="relative flex items-center justify-center w-20 h-20 mb-6">
+        
+        {/* Soft Outer Pulse Ring */}
+        <div className="absolute inset-0 rounded-full bg-blue-50 animate-ping opacity-75" />
+        
+        {/* Main Spinning Border Tracker */}
+        <div className="absolute inset-0 rounded-full border-4 border-slate-100 border-t-blue-600 animate-spin" />
+        
+        {/* Core Shifting Icon Layout Wrapper */}
+        <div className="relative z-10 flex items-center justify-center bg-white rounded-full p-3 shadow-sm border border-slate-100">
+          <Bus className="w-6 h-6 text-blue-600 animate-pulse" strokeWidth={2.5} />
+        </div>
+      </div>
+
+      {/* Text Context Indicators */}
+      <div className="flex flex-col items-center space-y-2 text-center max-w-sm">
+        <h3 className="text-sm font-bold tracking-wide text-slate-800">
+          Form are loading...
+        </h3>
+        
+        {/* Small Horizontal Vehicle Tracking Badges */}
+        <div className="flex items-center space-x-3 text-slate-400 pt-1">
+          <Car className="w-4 h-4" />
+          <span className="text-xs">•</span>
+          <Bus className="w-4 h-4 text-blue-500 font-bold" />
+          <span className="text-xs">•</span>
+          <Train className="w-4 h-4" />
+          <span className="text-xs">•</span>
+          <Plane className="w-4 h-4" />
+        </div>
+      </div>
+    </div>;
   }
 
   return (
@@ -271,7 +307,7 @@ export default function AddTicketForm() {
               readOnly
               name="vendorName"
               defaultValue={user?.name || ""}
-              key={user?.name} // সেশন লোড হওয়ার পর রি-রেন্ডার নিশ্চিত করতে key যোগ করা হয়েছে
+              key={user?.name} 
               variant="flat"
               className="bg-gray-100 rounded-lg opacity-80 w-full pl-7"
             />

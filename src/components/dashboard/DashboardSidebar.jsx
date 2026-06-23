@@ -28,11 +28,11 @@ export function DashboardSidebar() {
 
   // Navigation configuration utilities
   const navItems = [
-    { icon: Person, label: "Vendor Profile", href: "/dashboard/profile" },
-    { icon: CirclePlus, label: "Add Ticket", href: "/dashboard/add-ticket" },
-    { icon: Ticket, label: "My Added Tickets", href: "/dashboard/my-tickets" },
-    { icon: SquareListUl, label: "Requested Bookings", href: "/dashboard/bookings" },
-    { icon: ChartColumn, label: "Revenue Overview", href: "/dashboard/revenue" },
+    { icon: Person, label: "Vendor Profile", href: "/dashboard/vendor" },
+    { icon: CirclePlus, label: "Add Ticket", href: "/dashboard/vendor/tickets/new" },
+    { icon: Ticket, label: "My Added Tickets", href: "/dashboard/vendor/tickets" },
+    { icon: SquareListUl, label: "Requested Bookings", href: "/dashboard/vendor/bookings" },
+    { icon: ChartColumn, label: "Revenue Overview", href: "/dashboard/vendor/revenue" },
   ];
 
   const isCurrentActive = (itemHref) => {
