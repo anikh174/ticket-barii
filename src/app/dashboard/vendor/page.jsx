@@ -2,7 +2,7 @@
 
 import { useSession } from '@/lib/auth-client';
 import React, { useState, useEffect } from 'react';
-import { Bus, MapPin, Settings, Star, Mail, ShieldCheck, Ticket } from "lucide-react";
+import { Bus, MapPin, Settings, Star, Mail, ShieldCheck, Ticket, CalendarDays, ArrowRight, Coins, Armchair } from "lucide-react";
 import Link from 'next/link';
 import { getTickets } from '@/lib/api/tickets';
 
@@ -21,7 +21,7 @@ const VendorProfilePage = () => {
             try {
                 setLoadingTickets(true);
                 const data = await getTickets();
-                setTickets(data);
+                setTickets(data || []);
             } catch (error) {
                 console.error("Ticket can't loading:", error);
             } finally {
@@ -47,9 +47,14 @@ const VendorProfilePage = () => {
         );
     }
 
+    // ১. ফিল্টারিং ফিক্স: 'approved' অথবা 'active' দুটোকেই অ্যাক্টিভ হিসেবে কাউন্ট করা হবে
+    const activeTickets = tickets?.filter(ticket => 
+        ticket.status?.toLowerCase() === "approved" || ticket.status?.toLowerCase() === "active"
+    ) || [];
 
-    const activeTickets = tickets?.filter(ticket => ticket.status === "active") || [];
-
+    // ২. হিস্টোরি এবং ক্যানসেলড ফিল্টারিং (যদি ডাটাবেজে স্ট্যাটাস থাকে)
+    const historyTickets = tickets?.filter(ticket => ticket.status?.toLowerCase() === "completed") || [];
+    const cancelledTickets = tickets?.filter(ticket => ticket.status?.toLowerCase() === "rejected" || ticket.status?.toLowerCase() === "cancelled") || [];
 
     const vendorName = session?.user?.name || "Vendor Name";
     const firstLetter = vendorName.charAt(0).toUpperCase();
@@ -57,12 +62,11 @@ const VendorProfilePage = () => {
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-8 bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 transition-colors">
             
+            {/* Banner & Profile Section */}
             <div className="relative mb-12">
                 <div className="h-48 sm:h-60 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-md" />
                 
                 <div className="px-6 md:px-12 -mt-16 sm:-mt-20 flex flex-col sm:flex-row items-center sm:items-end gap-6">
-
-
                     {session?.user?.image ? (
                         <img 
                             src={session.user.image} 
@@ -99,9 +103,8 @@ const VendorProfilePage = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
+                {/* Left Info Column */}
                 <div className="lg:col-span-1 space-y-6">
-
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800 shadow-sm">
                         <div className="grid grid-cols-2 gap-3">
                             <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl text-center">
@@ -129,14 +132,16 @@ const VendorProfilePage = () => {
                     </div>
                 </div>
 
+                {/* Right Tickets Column */}
                 <div className="lg:col-span-3">
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-zinc-100 dark:border-zinc-800 shadow-sm">
-
+                        
+                        {/* Tab Switcher */}
                         <div className="flex gap-6 border-b border-zinc-100 dark:border-zinc-800 mb-6">
                             {[
-                                { id: "active", label: "Active Tickets" },
-                                { id: "history", label: "History" },
-                                { id: "cancelled", label: "Cancelled" }
+                                { id: "active", label: `Active Tickets (${activeTickets.length})` },
+                                { id: "history", label: `History (${historyTickets.length})` },
+                                { id: "cancelled", label: `Cancelled (${cancelledTickets.length})` }
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -155,31 +160,70 @@ const VendorProfilePage = () => {
                             ))}
                         </div>
 
+                        {/* Tab Content Rendering */}
                         <div className="w-full">
                             {selectedTab === "active" && (
                                 <div className="space-y-4">
                                     {activeTickets.length > 0 ? (
-                                        activeTickets.map((ticket, index) => (
-                                            <div key={index} className="border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-50/50 dark:bg-zinc-800/20 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition">
-                                                <div className="flex gap-4 items-center flex-1">
-                                                    <div className="bg-emerald-50 dark:bg-emerald-950/50 p-3 rounded-xl text-emerald-600 dark:text-emerald-400">
-                                                        <Bus size={24} />
+                                        activeTickets.map((ticket) => {
+                                            const ticketId = ticket._id?.$oid || ticket._id;
+                                            return (
+                                                <div key={ticketId} className="border border-zinc-200/60 dark:border-zinc-800 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-50/30 dark:bg-zinc-900/30 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-all duration-200">
+                                                    <div className="flex gap-4 items-center flex-1 w-full">
+                                                        <div className="bg-blue-50 dark:bg-blue-950/40 p-3.5 rounded-xl text-blue-600 dark:text-blue-400 flex-shrink-0">
+                                                            <Bus size={24} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            {/* ৩. টাইটেল এবং ট্রান্সপোর্ট টাইপ */}
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <h3 className="font-extrabold text-zinc-900 dark:text-zinc-100 text-base sm:text-lg truncate">
+                                                                    {ticket.title}
+                                                                </h3>
+                                                                {ticket.transportType && (
+                                                                    <span className="text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+                                                                        {ticket.transportType}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {/* ৪. রুট রেন্ডারিং ফিক্স (fromLocation -> toLocation) */}
+                                                            <div className="flex items-center gap-2 text-sm font-bold text-zinc-600 dark:text-zinc-400 mt-1">
+                                                                <span className="text-zinc-800 dark:text-zinc-200">{ticket.fromLocation}</span>
+                                                                <ArrowRight size={14} className="text-zinc-400" />
+                                                                <span className="text-zinc-800 dark:text-zinc-200">{ticket.toLocation}</span>
+                                                            </div>
+
+                                                            {/* ৫. ডেট-টাইম এবং প্রাইস ফিক্স */}
+                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs font-semibold text-zinc-400">
+                                                                <span className="flex items-center gap-1">
+                                                                    <CalendarDays size={14} className="text-blue-500" />
+                                                                    {ticket.departureDateTime ? new Date(ticket.departureDateTime).toLocaleDateString('en-US', {
+                                                                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+                                                                    }) : "No date specified"}
+                                                                </span>
+                                                                <span className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300">
+                                                                    <Coins size={14} className="text-amber-500" />
+                                                                    ৳{ticket.price} / unit
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-lg">{ticket.from} to {ticket.to}</h3>
-                                                        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">{ticket.busName} • {ticket.busType}</p>
-                                                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 font-semibold">{ticket.date} • ৳{ticket.price}</p>
+                                                    
+                                                    <div className="hidden md:block h-12 w-px bg-zinc-200 dark:bg-zinc-800 mx-2" />
+                                                    
+                                                    {/* ৬. অ্যাভেলেবল কোয়ান্টিটি ফিক্স */}
+                                                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-zinc-100 dark:border-zinc-800">
+                                                        <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold border border-emerald-100 dark:border-emerald-900/30">
+                                                            Active
+                                                        </span>
+                                                        <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold flex items-center gap-1">
+                                                            <Armchair size={13} className="text-emerald-500" />
+                                                            {ticket.quantity || 0} Seats left
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <div className="hidden md:block h-12 w-px bg-zinc-200 dark:bg-zinc-800 mx-2" />
-                                                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-zinc-100 dark:border-zinc-800">
-                                                    <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold border border-emerald-100 dark:border-emerald-900/30">
-                                                        Available
-                                                    </span>
-                                                    <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">{ticket.seatsLeft} Seats left</p>
-                                                </div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     ) : (
                                         <div className="text-center py-12 text-zinc-400 dark:text-zinc-500 text-sm flex flex-col items-center gap-3">
                                             <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-full border border-zinc-100 dark:border-zinc-800">
@@ -191,6 +235,7 @@ const VendorProfilePage = () => {
                                 </div>
                             )}
 
+                            {/* History Tab */}
                             {selectedTab === "history" && (
                                 <div className="text-center py-12 text-zinc-400 dark:text-zinc-500 text-sm flex flex-col items-center gap-3">
                                      <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-full border border-zinc-100 dark:border-zinc-800">
@@ -200,6 +245,7 @@ const VendorProfilePage = () => {
                                 </div>
                             )}
 
+                            {/* Cancelled Tab */}
                             {selectedTab === "cancelled" && (
                                 <div className="text-center py-12 text-zinc-400 dark:text-zinc-500 text-sm flex flex-col items-center gap-3">
                                      <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-full border border-zinc-100 dark:border-zinc-800">

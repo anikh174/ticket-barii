@@ -98,7 +98,7 @@ export default function AddTicketForm() {
         setImageFile(null);
         setTransportType("");
         
-        router.push("/dashboard/vendor");
+        router.push("/dashboard/vendor/tickets");
       } else {
         toast.error("Failed to save ticket to database.");
       }
