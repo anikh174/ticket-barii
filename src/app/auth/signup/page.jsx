@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams ইমপোর্ট করা হয়েছে
 import { Button, Card } from "@heroui/react";
-import { Description, Label, Radio, RadioGroup } from "@heroui/react";
+import { Label, Radio, RadioGroup } from "@heroui/react";
 import {
   Eye,
   EyeSlash,
@@ -20,6 +20,10 @@ import toast from "react-hot-toast";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // searchParams ইনিশিয়ালাইজ করা হয়েছে
+
+  // ইউআরএল থেকে callbackUrl নেওয়া হচ্ছে, না থাকলে হোম ("/") এ যাবে
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   // Form States
   const [name, setName] = useState("");
@@ -46,7 +50,7 @@ export default function SignUpPage() {
         password,
         name,
         role,
-        callbackURL: "/",
+        callbackURL: callbackUrl, // ডাইনামিক callbackUrl সেট করা হয়েছে
       });
 
       if (authError) {
@@ -84,6 +88,7 @@ export default function SignUpPage() {
 
                 <div className="ml-4 flex-shrink-0 flex border-l border-gray-100 dark:border-gray-800 pl-4 items-center">
                   <button
+                    type="button"
                     onClick={() => toast.dismiss(t.id)}
                     className="p-1 flex items-center justify-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
                   >
@@ -110,7 +115,9 @@ export default function SignUpPage() {
         );
 
         setTimeout(() => {
-          window.location.href = "/";
+          // window.location.href এর পরিবর্তে Next.js router দিয়ে ডাইনামিক রিডাইরেক্ট করা হলো
+          router.push(callbackUrl);
+          router.refresh();
         }, 1500);
       }
     } catch (err) {
@@ -123,7 +130,6 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md p-6 shadow-lg">
-        {/* Header Section with Custom TicketBari Logo */}
         <div className="flex flex-col items-center justify-center text-center mb-6">
           <div className="flex items-center space-x-2 text-xl font-bold mb-2">
             <span className="font-extrabold tracking-wide text-gray-900 dark:text-white">
@@ -137,9 +143,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Form Body */}
         <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-          {/* Name Input */}
           <div className="flex flex-col gap-1.5">
             <label className="text-small font-medium text-default-700">
               Full Name
@@ -157,7 +161,6 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Email Input */}
           <div className="flex flex-col gap-1.5">
             <label className="text-small font-medium text-default-700">
               Email Address
@@ -175,7 +178,6 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Password Input */}
           <div className="flex flex-col gap-1.5">
             <label className="text-small font-medium text-default-700">
               Password
@@ -204,7 +206,6 @@ export default function SignUpPage() {
             </div>
           </div>
           
-          {/* Role Selection */}
           <div className="flex flex-col gap-4">
             <Label>Select your role</Label>
             <RadioGroup
@@ -232,7 +233,6 @@ export default function SignUpPage() {
             </RadioGroup>
           </div>
 
-          {/* Error Message Feedback */}
           {error && (
             <div className="flex items-center gap-2 p-3 text-sm text-danger bg-danger-50 dark:bg-danger-50/10 rounded-xl border border-danger-200 dark:border-danger-50/20">
               <TriangleExclamationFill className="text-lg flex-shrink-0" />
@@ -240,7 +240,6 @@ export default function SignUpPage() {
             </div>
           )}
 
-          {/* Success Message Feedback */}
           {success && (
             <div className="flex items-center gap-2 p-3 text-sm text-success bg-success-50 dark:bg-success-50/10 rounded-xl border border-success-200 dark:border-success-50/20">
               <CircleCheck className="text-lg flex-shrink-0" />
@@ -248,7 +247,6 @@ export default function SignUpPage() {
             </div>
           )}
 
-          {/* Submit Button */}
           <Button
             type="submit"
             color="primary"
@@ -259,11 +257,11 @@ export default function SignUpPage() {
           </Button>
         </form>
 
-        {/* Navigation Option */}
+        {/* এখানে লিঙ্কটির সাথে callbackUrl জুড়ে চেইন করা হয়েছে যাতে ব্যাক করা যায় */}
         <div className="text-center mt-6 text-small text-default-500">
           Already have an account?{" "}
           <Link
-            href="/auth/signin"
+            href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
             className="text-primary hover:underline font-medium transition-all"
           >
             Login

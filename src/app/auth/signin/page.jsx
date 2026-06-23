@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; 
 import { Button, Card } from "@heroui/react";
 import { Eye, EyeSlash, At, Shield, CircleCheck, TriangleExclamationFill, Xmark } from "@gravity-ui/icons";
 import { authClient } from "@/lib/auth-client"; 
@@ -10,6 +10,10 @@ import toast from "react-hot-toast";
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); 
+  
+  // ইউআরএল-এ callbackUrl থাকলে সেটা নিবে, না থাকলে ডিফল্ট হোমে ("/") পাঠাবে
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   
   // Form States
   const [email, setEmail] = useState("");
@@ -23,7 +27,7 @@ export default function SignInPage() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-const handleSignIn = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
@@ -32,7 +36,7 @@ const handleSignIn = async (e) => {
       const { data, error: authError } = await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/",
+        callbackURL: callbackUrl, 
       });
 
       if (authError) {
@@ -49,10 +53,8 @@ const handleSignIn = async (e) => {
               t.visible ? 'animate-enter' : 'animate-leave'
             } relative max-w-md w-full bg-white dark:bg-gray-900 shadow-xl rounded-2xl pointer-events-auto flex flex-col ring-1 ring-black/5 dark:ring-white/10 overflow-hidden border border-gray-100 dark:border-gray-800 transition-all duration-300`}
           >
-
             <div className="flex p-4 pb-5">
               <div className="flex-1 w-0 flex items-center">
-
                 <div className="flex-shrink-0 bg-blue-50 dark:bg-blue-950/40 p-2.5 rounded-xl">
                   <CircleCheck className="w-5 h-5 text-blue-600 dark:text-blue-500" />
                 </div>
@@ -66,9 +68,9 @@ const handleSignIn = async (e) => {
                 </div>
               </div>
               
-
               <div className="ml-4 flex-shrink-0 flex border-l border-gray-100 dark:border-gray-800 pl-4 items-center">
                 <button
+                  type="button"
                   onClick={() => toast.dismiss(t.id)}
                   className="p-1 flex items-center justify-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
                 >
@@ -77,10 +79,9 @@ const handleSignIn = async (e) => {
               </div>
             </div>
 
-
             <div className="absolute bottom-0 left-0 right-0 w-full h-1 bg-gray-100 dark:bg-gray-800">
               <div 
-                className="h-full bg-blue-600 dark:bg-blue-500" // TicketBari-র থিম কালার ব্লু
+                className="h-full bg-blue-600 dark:bg-blue-500"
                 style={{
                   animation: `shrinkWidth ${duration}ms linear forwards`,
                   transformOrigin: 'left'
@@ -93,9 +94,9 @@ const handleSignIn = async (e) => {
           position: 'top-center'
         });
 
-
         setTimeout(() => {
-          router.push("/");
+          router.push(callbackUrl); 
+          router.refresh();
         }, 1500);
       }
     } catch (err) {
@@ -108,7 +109,6 @@ const handleSignIn = async (e) => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md p-6 shadow-lg">
-        {/* Header Section with Custom TicketBari Logo */}
         <div className="flex flex-col items-center justify-center text-center mb-6">
           <div className="flex items-center space-x-2 text-xl font-bold mb-2">
             <span className="font-extrabold tracking-wide text-gray-900 dark:text-white">
@@ -120,10 +120,7 @@ const handleSignIn = async (e) => {
           </p>
         </div>
         
-        {/* Form Body */}
         <form onSubmit={handleSignIn} className="flex flex-col gap-4">
-
-          {/* Email Input */}
           <div className="flex flex-col gap-1.5">
             <label className="text-small font-medium text-default-700">Email Address</label>
             <div className="relative flex items-center">
@@ -139,11 +136,9 @@ const handleSignIn = async (e) => {
             </div>
           </div>
 
-          {/* Password Input */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
               <label className="text-small font-medium text-default-700">Password</label>
-              {/* Optional: Add forgot password link here later if needed */}
             </div>
             <div className="relative flex items-center">
               <Shield className="absolute left-3 text-default-400 text-xl pointer-events-none" />
@@ -169,7 +164,6 @@ const handleSignIn = async (e) => {
             </div>
           </div>
 
-          {/* Error Message Feedback */}
           {error && (
             <div className="flex items-center gap-2 p-3 text-sm text-danger bg-danger-50 dark:bg-danger-50/10 rounded-xl border border-danger-200 dark:border-danger-50/20">
               <TriangleExclamationFill className="text-lg flex-shrink-0" />
@@ -177,7 +171,6 @@ const handleSignIn = async (e) => {
             </div>
           )}
 
-          {/* Success Message Feedback */}
           {success && (
             <div className="flex items-center gap-2 p-3 text-sm text-success bg-success-50 dark:bg-success-50/10 rounded-xl border border-success-200 dark:border-success-50/20">
               <CircleCheck className="text-lg flex-shrink-0" />
@@ -185,7 +178,6 @@ const handleSignIn = async (e) => {
             </div>
           )}
 
-          {/* Submit Button */}
           <Button
             type="submit"
             color="primary"
@@ -196,11 +188,11 @@ const handleSignIn = async (e) => {
           </Button>
         </form>
 
-        {/* Navigation Option */}
+        {/* এখানে লিঙ্কটির সাথে callbackUrl জুড়ে চেইন করা হয়েছে */}
         <div className="text-center mt-6 text-small text-default-500">
           Don&apos;t have an account?{" "}
           <Link 
-            href="/auth/signup" 
+            href={`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`} 
             className="text-primary hover:underline font-medium transition-all"
           >
             Register now

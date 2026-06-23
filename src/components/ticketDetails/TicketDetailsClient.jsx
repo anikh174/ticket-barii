@@ -5,11 +5,12 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { 
   CalendarDays, Armchair, Coins, MapPin, 
-  Clock, ShieldCheck, Sparkles, X, Loader2 
+  Clock, Sparkles, X, Loader2, AlertTriangle 
 } from "lucide-react";
 import { toast } from 'react-hot-toast';
 
-export default function TicketDetailsClient({ ticket, ticketId }) {
+// এখানে userRole প্রোপটি যোগ করা হয়েছে
+export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, userRole }) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingQty, setBookingQty] = useState(1);
@@ -42,7 +43,28 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
   }, [departureTime]);
 
   const isSeatsEmpty = (ticket.quantity || 0) === 0;
-  const isBookNowDisabled = isTimePassed || isSeatsEmpty;
+  
+  // ভেন্ডর হলে বুকিং বাটন ডিজেবল করার জন্য কন্ডিশন যোগ করা হয়েছে
+  const isVendor = isLoggedIn && userRole === 'vendor';
+  const isBookNowDisabled = isTimePassed || isSeatsEmpty || isVendor;
+
+  // Better Auth এর জন্য রিডাইরেক্ট লজিকসহ বাটনের ফাংশন
+  const handleBookNowClick = () => {
+    if (!isLoggedIn) {
+      toast.error('Please login first to book tickets!');
+      const currentPath = window.location.pathname;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
+    // যদি লগইন করা ইউজার ভেন্ডর হয়
+    if (isVendor) {
+      toast.error('Vendors are not allowed to book tickets!');
+      return;
+    }
+
+    setIsModalOpen(true);
+  };
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -145,8 +167,16 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
               )}
             </div>
 
+            {/* UI মেসেজ: যদি লগইন করা ইউজার ভেন্ডর হয় */}
+            {isVendor && (
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl flex items-center gap-2 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>You are logged in as a Vendor. Vendors cannot purchase tickets.</span>
+              </div>
+            )}
+
             {/* রুট ইনফো */}
-            <div className="grid grid-cols-2 gap-4 mt-6 p-4 bg-blue-50/40 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/30 rounded-2xl">
+            <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-blue-50/40 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/30 rounded-2xl">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-5 h-5 text-blue-500 mt-0.5" />
                 <div>
@@ -214,7 +244,7 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
             </div>
 
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleBookNowClick}
               disabled={isBookNowDisabled}
               className={`px-8 py-3.5 rounded-xl font-bold text-sm text-center shadow transition-all duration-200 cursor-pointer ${
                 isBookNowDisabled 
@@ -222,14 +252,14 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
                   : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-black dark:hover:bg-zinc-100'
               }`}
             >
-              {isSeatsEmpty ? 'Sold Out' : isTimePassed ? 'Trip Expired' : 'Book Tickets Now'}
+              {isSeatsEmpty ? 'Sold Out' : isTimePassed ? 'Trip Expired' : isVendor ? 'Vendor Restricted' : 'Book Tickets Now'}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* বুকিং মডাল (ফিক্সড কালার) */}
+      {/* বুকিং মডাল */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-md border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-6 relative">
@@ -252,7 +282,7 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
                   max={ticket.quantity}
                   value={bookingQty}
                   onChange={(e) => setBookingQty(parseInt(e.target.value) || 1)}
-                  className="w-full px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-50 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:bg-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-50 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   required
                 />
               </div>
@@ -285,7 +315,7 @@ export default function TicketDetailsClient({ ticket, ticketId }) {
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Saving...
-                    </>
+                    </                    >
                   ) : (
                     'Confirm Purchase'
                   )}
