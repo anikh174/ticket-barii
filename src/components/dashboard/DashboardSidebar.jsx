@@ -10,6 +10,10 @@ import {
   SquareListUl,
   ChartColumn,
   Xmark,
+  CreditCard,
+  Megaphone,
+  Persons,
+  ShieldExclamation,
 } from "@gravity-ui/icons";
 import { Button, Drawer } from "@heroui/react";
 import { useEffect, useState } from "react";
@@ -27,13 +31,61 @@ export function DashboardSidebar() {
   const user = session?.user;
 
   // Navigation configuration utilities
-  const navItems = [
+  // vendor
+  const vendorNavLinks = [
     { icon: Person, label: "Vendor Profile", href: "/dashboard/vendor" },
-    { icon: CirclePlus, label: "Add Ticket", href: "/dashboard/vendor/tickets/new" },
-    { icon: Ticket, label: "My Added Tickets", href: "/dashboard/vendor/tickets" },
-    { icon: SquareListUl, label: "Requested Bookings", href: "/dashboard/vendor/bookings" },
-    { icon: ChartColumn, label: "Revenue Overview", href: "/dashboard/vendor/revenue" },
+    {
+      icon: CirclePlus,
+      label: "Add Ticket",
+      href: "/dashboard/vendor/tickets/new",
+    },
+    {
+      icon: Ticket,
+      label: "My Added Tickets",
+      href: "/dashboard/vendor/tickets",
+    },
+    {
+      icon: SquareListUl,
+      label: "Requested Bookings",
+      href: "/dashboard/vendor/bookings",
+    },
+    {
+      icon: ChartColumn,
+      label: "Revenue Overview",
+      href: "/dashboard/vendor/revenue",
+    },
   ];
+
+  // user
+  const userNavLinks = [
+    { icon: Person, label: "User Profile", href: "/dashboard/user" },
+    {
+      icon: Ticket,
+      label: "My Booked Tickets",
+      href: "/dashboard/user/my-booked-tickets",
+    },
+    {
+      icon: CreditCard,
+      label: "Transaction History",
+      href: "/dashboard/user/transactions",
+    },
+  ];
+
+  // admin
+  const adminNavLinks = [
+  { icon: ShieldExclamation, label: "Admin Profile", href: "/dashboard/admin" },
+  { icon: Ticket, label: "Manage Tickets", href: "/dashboard/admin/tickets" },
+  { icon: Persons, label: "Manage Users", href: "/dashboard/admin/users" },
+  { icon: Megaphone, label: "Advertise Tickets", href: "/dashboard/admin/advertise" },
+]
+
+const navLinksMap = {
+  user : userNavLinks,
+  vendor: vendorNavLinks,
+  admin: adminNavLinks
+}
+
+const navItems = navLinksMap[user?.role || 'user']
 
   const isCurrentActive = (itemHref) => {
     return pathname === itemHref;
@@ -43,9 +95,27 @@ export function DashboardSidebar() {
     <div className="flex flex-col h-full bg-slate-50/50">
       {/* Brand Logo Section */}
       <div className="flex items-center h-16 px-6 border-b border-slate-200/60 bg-white">
-        <Link href="/" className="flex items-center space-x-2 text-xl font-bold">
-          <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M13 3v15" /><path d="M11 3v15" /><path d="M2 10h20" /><path d="M8 14h.01" /><path d="M16 14h.01" /><path d="m5 21 3-3" /><path d="m19 21-3-3" />
+        <Link
+          href="/"
+          className="flex items-center space-x-2 text-xl font-bold"
+        >
+          <svg
+            className="w-6 h-6 text-blue-600"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+            <path d="M13 3v15" />
+            <path d="M11 3v15" />
+            <path d="M2 10h20" />
+            <path d="M8 14h.01" />
+            <path d="M16 14h.01" />
+            <path d="m5 21 3-3" />
+            <path d="m19 21-3-3" />
           </svg>
           <span className="font-extrabold tracking-wide text-slate-900">
             Ticket<span className="text-blue-600">Bari</span>
@@ -70,14 +140,18 @@ export function DashboardSidebar() {
               {/* Dynamic Image / Avatar Fallback handling */}
               <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-blue-400 flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 overflow-hidden">
                 {user?.image ? (
-                  <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase() || "V"
+                  user?.name?.charAt(0).toUpperCase() || ""
                 )}
               </div>
               <div className="flex flex-col text-left overflow-hidden">
                 <span className="text-sm font-bold text-slate-800 leading-snug truncate">
-                  {user?.name || "Green Line Pvt. Ltd."}
+                  {user?.name || "Please login"}
                 </span>
                 <span className="text-[10px] text-emerald-600 font-bold tracking-wider uppercase mt-0.5">
                   {user?.role ? `${user.role} Account` : "User Account"}
@@ -103,9 +177,10 @@ export function DashboardSidebar() {
                   key={item.label}
                   href={item.href}
                   className={`group relative flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-200
-                    ${active
-                      ? "text-blue-600 bg-blue-50/70"
-                      : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
+                    ${
+                      active
+                        ? "text-blue-600 bg-blue-50/70"
+                        : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
                     }`}
                 >
                   {/* Left Side Highlight Accent Indicator Line */}

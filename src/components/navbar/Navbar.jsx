@@ -32,7 +32,6 @@ export default function Navbar() {
 
   const { data: session, isPending } = useSession();
   const user = session?.user;
-  // console.log(user)
 
   useEffect(() => {
     setMounted(true);
@@ -82,6 +81,17 @@ export default function Navbar() {
   const isLoggedIn = !!session; 
   const isActive = (path) => pathname === path;
 
+  // ডাইনামিক ড্যাশবোর্ড রুট জেনারেট করার ফাংশন
+  const getDashboardPath = () => {
+    if (!user || !user.role) return "/dashboard"; // Fallback
+    const role = user.role.toLowerCase();
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "vendor") return "/dashboard/vendor";
+    return "/dashboard/user"; // default user dashboard
+  };
+
+  const dashboardPath = getDashboardPath();
+
   return (
     <>
       {/* Main Navbar */}
@@ -105,7 +115,11 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-8">
               <Link href="/" className={`font-medium text-sm transition ${isActive('/') ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600'}`}>Home</Link>
               <Link href="/tickets" className={`font-medium text-sm transition ${isActive('/tickets') ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600'}`}>All Tickets</Link>
-              <Link href="/dashboard" className={`font-medium text-sm transition ${isActive('/dashboard') ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600'}`}>Dashboard</Link>
+              
+              {/* ইউজার লগইন থাকলে এবং ক্লায়েন্ট মাউন্ট হলে ড্যাশবোর্ড দেখাবে */}
+              {mounted && isLoggedIn && (
+                <Link href={dashboardPath} className={`font-medium text-sm transition ${pathname.startsWith('/dashboard') ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600'}`}>Dashboard</Link>
+              )}
 
               <div className="h-5 w-px bg-gray-200 dark:bg-gray-800"></div>
 
@@ -180,10 +194,15 @@ export default function Navbar() {
             <Ticket className="w-5 h-5" />
             <span className="text-[10px] font-medium">Tickets</span>
           </Link>
-          <Link href="/dashboard" className={`flex flex-col items-center space-y-0.5 ${isActive('/dashboard') ? 'text-blue-600' : 'text-gray-400'}`}>
-            <LayoutCellsLarge className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Dashboard</span>
-          </Link>
+          
+          {/* মোবাইল বটম বারেও লগইন সাপেক্ষে ড্যাশবোর্ড দেখাবে */}
+          {mounted && isLoggedIn && (
+            <Link href={dashboardPath} className={`flex flex-col items-center space-y-0.5 ${pathname.startsWith('/dashboard') ? 'text-blue-600' : 'text-gray-400'}`}>
+              <LayoutCellsLarge className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Dashboard</span>
+            </Link>
+          )}
+          
           <button onClick={() => setIsDrawerOpen(true)} className={`flex flex-col items-center space-y-0.5 ${isDrawerOpen ? 'text-blue-600' : 'text-gray-400'}`}>
             <Person className="w-5 h-5" />
             <span className="text-[10px] font-medium">{(!mounted || isPending) ? "..." : isLoggedIn ? "Profile" : "Menu"}</span>
@@ -256,10 +275,15 @@ export default function Navbar() {
                 <Ticket className="w-4 h-4 text-gray-400" />
                 <span>All Tickets</span>
               </Link>
-              <Link href="/dashboard" onClick={() => setIsDrawerOpen(false)} className="flex items-center space-x-3 px-3 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm md:text-base font-medium transition">
-                <LayoutCellsLarge className="w-4 h-4 text-gray-400" />
-                <span>Dashboard</span>
-              </Link>
+
+              {/* ড্রয়ার বা সাইডবারেও লগইন সাপেক্ষে ড্যাশবোর্ড দেখাবে */}
+              {mounted && isLoggedIn && (
+                <Link href={dashboardPath} onClick={() => setIsDrawerOpen(false)} className="flex items-center space-x-3 px-3 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm md:text-base font-medium transition">
+                  <LayoutCellsLarge className="w-4 h-4 text-gray-400" />
+                  <span>Dashboard</span>
+                </Link>
+              )}
+
               {mounted && isLoggedIn && (
                 <Link href="/profile" onClick={() => setIsDrawerOpen(false)} className="flex items-center space-x-3 px-3 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm md:text-base font-medium transition">
                   <Person className="w-4 h-4 text-gray-400" />
