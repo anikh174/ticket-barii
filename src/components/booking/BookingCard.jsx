@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Clock, MapPin, CalendarDays, CreditCard } from 'lucide-react';
+import { Clock, MapPin, CalendarDays } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useSession } from '@/lib/auth-client';
 
 export default function BookingCard({ booking }) {
-  // যদি কোনো কারণে বুকিং অবজেক্ট না থাকে, ক্র্যাশ হ্যান্ডলিং
   if (!booking) {
     return (
       <div className="bg-white dark:bg-zinc-900 border border-red-200/60 p-5 rounded-2xl shadow-md text-center">
@@ -15,7 +15,6 @@ export default function BookingCard({ booking }) {
     );
   }
 
-  // সরাসরি ফ্ল্যাট ডেটা থেকে ডি-স্ট্রাকচারিং (আপনার স্কিমা অনুযায়ী)
   const { 
     _id,
     ticketTitle, 
@@ -32,11 +31,13 @@ export default function BookingCard({ booking }) {
   const [isTimePassed, setIsTimePassed] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
 
-  // ডিপার্চার টাইম মিলি-সেকেন্ডে রূপান্তর
   const departureTime = departureDateTime ? new Date(departureDateTime).getTime() : 0;
   const currentStatus = status ? status.toLowerCase() : 'pending';
 
-  // কাউন্টডাউন টাইমার ইফেক্ট
+  // ইউজার সেশন ডেটা রিসিভ করা হচ্ছে
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
+
   useEffect(() => {
     if (!departureTime || currentStatus === 'rejected' || currentStatus === 'paid') return;
 
@@ -71,32 +72,47 @@ export default function BookingCard({ booking }) {
     return () => clearInterval(timer);
   }, [departureTime, currentStatus]);
 
-  // Stripe পেমেন্ট হ্যান্ডলার
+  // Stripe পেমেন্ট হ্যান্ডলার 
   const handlePayment = async () => {
     if (isTimePassed) {
       toast.error("Trip has already departed! Payment is blocked.");
       return;
     }
 
+    if (!user?.email) {
+      toast.error("User email not found. Please log in again.");
+      return;
+    }
+
     setIsPaying(true);
     try {
-      const response = await fetch('/api/checkout', {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+      
+      const response = await fetch(`${baseUrl}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          bookingId: _id?.$oid || _id, // MongoDB Object ID এবং সাধারণ স্ট্রিং দুইটার জন্যই সেফ ফলব্যাক
+          bookingId: _id?.$oid || _id, // MongoDB Object ID সেফটি হ্যান্ডলিং
+          email: user?.email,          // ইউজারের ইমেইল পাঠানো হচ্ছে
           amount: totalPrice 
         })
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Express Server Error Response:", errorText);
+        throw new Error(`Server Error: ${response.status}. Please check backend console.`);
+      }
+
       const data = await response.json();
       
-      if (response.ok && data.url) {
-        window.location.href = data.url; 
+      if (data.url) {
+        window.location.href = data.url; // স্ট্রাইপ পেমেন্ট গেটওয়েতে রিডাইরেক্ট
       } else {
         throw new Error(data.message || 'Payment initialization failed');
       }
     } catch (error) {
+      console.error("Payment Initializing Error Log:", error);
       toast.error(error.message || "Stripe payment failed to load.");
     } finally {
       setIsPaying(false);
@@ -110,10 +126,12 @@ export default function BookingCard({ booking }) {
     paid: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400',
   };
 
+  // বাটন ডিজেবল করার কন্ডিশন (নিরাপত্তার জন্য সেশন পেন্ডিং বা ইমেইল না থাকলে ডিজেবল থাকবে)
+  const isButtonDisabled = isTimePassed || isPaying || isPending || !user?.email;
+
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 rounded-2xl shadow-md overflow-hidden flex flex-col justify-between">
       <div>
-        {/* টিকিট ইমেজ ও স্ট্যাটাস ব্যাজ */}
         <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800">
           <Image 
             src={ticketImage || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957"} 
@@ -128,14 +146,12 @@ export default function BookingCard({ booking }) {
           </div>
         </div>
 
-        {/* কন্টেন্ট বডি */}
         <div className="p-5 space-y-4">
           <div>
             <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-50 line-clamp-1">{ticketTitle}</h3>
             <p className="text-xs text-zinc-400 mt-0.5">Booking Qty: <span className="font-bold text-zinc-700 dark:text-zinc-300">{quantity} Seats</span></p>
           </div>
 
-          {/* রুট (From -> To) */}
           <div className="bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-100 dark:border-zinc-900 text-xs space-y-1">
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-blue-500" />
@@ -149,7 +165,6 @@ export default function BookingCard({ booking }) {
             </div>
           </div>
 
-          {/* ডিপার্চার ডেট এবং টাইম */}
           <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
             <CalendarDays className="w-4 h-4 text-blue-500" />
             <span>
@@ -159,7 +174,6 @@ export default function BookingCard({ booking }) {
             </span>
           </div>
 
-          {/* কাউন্টডাউন টাইমার বক্স */}
           {currentStatus !== 'rejected' && currentStatus !== 'paid' && (
             <div className="p-3 bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-900 rounded-xl">
               {isTimePassed ? (
@@ -182,7 +196,6 @@ export default function BookingCard({ booking }) {
         </div>
       </div>
 
-      {/* ফুটার */}
       <div className="p-5 pt-0 border-t border-zinc-100 dark:border-zinc-800/60 mt-4 flex items-center justify-between gap-2">
         <div className="flex flex-col">
           <span className="text-[10px] text-zinc-400 font-bold uppercase">Total Price</span>
@@ -192,18 +205,24 @@ export default function BookingCard({ booking }) {
         {currentStatus === 'accepted' && (
           <button
             onClick={handlePayment}
-            disabled={isTimePassed || isPaying}
+            disabled={isButtonDisabled}
             className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition-all duration-200 ${
-              isTimePassed || isPaying
+              isButtonDisabled
                 ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none'
                 : 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer'
             }`}
           >
-            <CreditCard className="w-3.5 h-3.5" />
-            {isPaying ? 'Processing...' : 'Pay Now'}
+            <CircleCardIcon className="w-3.5 h-3.5" />
+            {isPaying ? 'Processing...' : isPending ? 'Loading Auth...' : 'Pay Now'}
           </button>
         )}
       </div>
     </div>
+  );
+}
+
+function CircleCardIcon(props) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
   );
 }
