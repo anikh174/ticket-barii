@@ -8,9 +8,10 @@ import {
   Clock, Sparkles, X, Loader2, AlertTriangle 
 } from "lucide-react";
 import { toast } from 'react-hot-toast';
+import { submitBookings } from '@/lib/actions/bookings'; // আপনার সার্ভার অ্যাকশন
 
-// এখানে userRole প্রোপটি যোগ করা হয়েছে
-export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, userRole }) {
+// 🌟 এখানে currentUser প্রোপস যুক্ত করা হয়েছে যার ভেতর ইউজারের email, name এবং id থাকবে
+export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, userRole, currentUser }) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingQty, setBookingQty] = useState(1);
@@ -44,11 +45,9 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
 
   const isSeatsEmpty = (ticket.quantity || 0) === 0;
   
-  // ভেন্ডর হলে বুকিং বাটন ডিজেবল করার জন্য কন্ডিশন যোগ করা হয়েছে
   const isVendor = isLoggedIn && userRole === 'vendor';
   const isBookNowDisabled = isTimePassed || isSeatsEmpty || isVendor;
 
-  // Better Auth এর জন্য রিডাইরেক্ট লজিকসহ বাটনের ফাংশন
   const handleBookNowClick = () => {
     if (!isLoggedIn) {
       toast.error('Please login first to book tickets!');
@@ -57,7 +56,6 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
       return;
     }
 
-    // যদি লগইন করা ইউজার ভেন্ডর হয়
     if (isVendor) {
       toast.error('Vendors are not allowed to book tickets!');
       return;
@@ -81,18 +79,26 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ticketId,
-          quantity: bookingQty,
-          totalPrice: bookingQty * ticket.price,
-          status: 'Pending'
-        })
+      // 🌟 ইউজারের রিয়েল ডাটা সহ সব ইনফরমেশন অবজেক্ট আকারে পাঠানো হচ্ছে
+      const res = await submitBookings({
+        ticketId,
+        quantity: bookingQty,
+        totalPrice: bookingQty * ticket.price,
+        status: 'Pending',
+        ticketTitle: ticket.title,
+        ticketImage: ticket.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957",
+        fromLocation: ticket.fromLocation,
+        toLocation: ticket.toLocation,
+        departureDateTime: ticket.departureDateTime,
+        
+        // 🔐 বুকিংকারী ইউজারের তথ্য
+        userEmail: currentUser?.email || "unknown@user.com",
+        userName: currentUser?.name || "Anonymous User",
+        userId: currentUser?.id || currentUser?._id || "unknown_id"
       });
 
-      if (response.ok) {
+      // রেসপন্স চেক
+      if (res?.success || res?.acknowledged || res?.insertedId) {
         toast.success('Booking Request Saved Successfully!');
         setIsModalOpen(false);
         
@@ -167,7 +173,7 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
               )}
             </div>
 
-            {/* UI মেসেজ: যদি লগইন করা ইউজার ভেন্ডর হয় */}
+            {/* UI মেসেজ: যদি লগইন করা ইউজার ভেন্ডর হয় */}
             {isVendor && (
               <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl flex items-center gap-2 text-amber-700 dark:text-amber-400 text-xs font-semibold">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -315,7 +321,7 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Saving...
-                    </                    >
+                    </>
                   ) : (
                     'Confirm Purchase'
                   )}

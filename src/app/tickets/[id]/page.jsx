@@ -9,7 +9,8 @@ const TicketDetailsPage = async ({ params }) => {
     const ticket = await getTicketById(id);
     const user = await getUserSession();
     const userRole =  user?.role;
-    console.log(userRole)
+    const currentUser = user;
+    // console.log(currentUser)
 
     if (!ticket) {
         notFound();
@@ -17,7 +18,7 @@ const TicketDetailsPage = async ({ params }) => {
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-24 pb-12">
-            <TicketDetailsClient ticket={ticket} isLoggedIn={user} userRole={userRole} ticketId={id} />
+            <TicketDetailsClient ticket={ticket} isLoggedIn={user} userRole={userRole} currentUser={currentUser} ticketId={id} />
         </div>
     );
 };
