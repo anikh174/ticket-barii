@@ -103,7 +103,7 @@ export default function TicketDetailsClient({ ticket, ticketId, isLoggedIn, user
         setIsModalOpen(false);
         
         setTimeout(() => {
-          router.push('/dashboard/my-booked-tickets');
+          router.push('/dashboard/user/my-booked-tickets');
           router.refresh();
         }, 1000);
       } else {

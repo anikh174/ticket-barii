@@ -50,7 +50,7 @@ export default function Banner() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/dashboard"
+                href="/"
                 className="flex items-center justify-center w-full sm:w-auto border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 px-8 py-3.5 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-900 active:scale-98 transition duration-200"
               >
                 View Dashboard
