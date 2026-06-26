@@ -10,7 +10,7 @@ const VendorRevenuePage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/vendor/revenue-stats")
+        fetch("https://ticketbari-server-beta.vercel.app/api/vendor/revenue-stats")
             .then(res => res.json())
             .then(data => {
                 setStats(data);

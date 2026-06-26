@@ -16,7 +16,7 @@ const AdvertisePage = () => {
     const fetchTickets = async () => {
         try {
             setLoading(true);
-            const res = await fetch('http://localhost:5000/api/tickets');
+            const res = await fetch('https://ticketbari-server-beta.vercel.app/api/tickets');
             const data = await res.json();
             
             // শুধুমাত্র approved টিকিটগুলো ফিল্টার করা হচ্ছে
@@ -41,7 +41,7 @@ const AdvertisePage = () => {
 
         setTogglingId(id);
         try {
-            const res = await fetch(`http://localhost:5000/api/tickets/${id}/advertise`, {
+            const res = await fetch(`https://ticketbari-server-beta.vercel.app/api/tickets/${id}/advertise`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

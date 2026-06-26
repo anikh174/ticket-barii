@@ -11,7 +11,7 @@ const BookingRequestPage = () => {
     const fetchBookings = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/vendor/bookings');
+            const response = await fetch('https://ticketbari-server-beta.vercel.app/api/vendor/bookings');
             const data = await response.json();
             setBookings(data);
         } catch (error) {
@@ -28,7 +28,7 @@ const BookingRequestPage = () => {
     // Handle single action updates (Accept / Reject)
     const handleStatusUpdate = async (id, newStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/bookings/${id}/status`, {
+            const response = await fetch(`https://ticketbari-server-beta.vercel.app/api/bookings/${id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

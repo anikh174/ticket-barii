@@ -11,7 +11,7 @@ export default function ManageTickets() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/all-tickets");
+        const res = await fetch("https://ticketbari-server-beta.vercel.app/api/admin/all-tickets");
         const data = await res.json();
 
         // Shudhu 'pending' status er ticket gulo dynamic-bhabe filter korbo admin er table er jonno
@@ -34,7 +34,7 @@ export default function ManageTickets() {
   const handleStatusUpdate = async (id, updatedStatus) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/tickets/${id}/status`,
+        `https://ticketbari-server-beta.vercel.app/api/tickets/${id}/status`,
         {
           method: "PATCH",
           headers: {

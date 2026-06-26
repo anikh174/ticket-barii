@@ -44,7 +44,7 @@ export default function VendorTickets({ userEmail }) {
 
       setLoading(true);
       // সঠিক এন্ডপয়েন্ট এবং সাথে ভেন্ডরের ইমেইল পাস করা হলো
-      const res = await fetch(`http://localhost:5000/api/vendor/tickets?email=${userEmail}`);
+      const res = await fetch(`https://ticketbari-server-beta.vercel.app/vendor/tickets?email=${userEmail}`);
       const data = await res.json();
       setTickets(data);
     } catch (error) {
@@ -65,7 +65,7 @@ export default function VendorTickets({ userEmail }) {
     if (!proceed) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/tickets/${id}`, {
+      const res = await fetch(`https://ticketbari-server-beta.vercel.app/api/tickets/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -99,7 +99,7 @@ export default function VendorTickets({ userEmail }) {
     setIsUpdating(true);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}`, {
+      const res = await fetch(`https://ticketbari-server-beta.vercel.app/api/tickets/${ticketId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

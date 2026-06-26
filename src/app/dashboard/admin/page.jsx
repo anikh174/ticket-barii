@@ -23,7 +23,7 @@ const AdminProfilePage = () => {
 const fetchAdminStats = async () => {
     try {
         // এখানে localhost এর জায়গায় 127.0.0.1 দিয়ে ট্রাই করুন
-        const response = await fetch('http://127.0.0.1:5000/api/admin/stats');
+        const response = await fetch('https://ticketbari-server-beta.vercel.app/api/admin/stats');
         if (response.ok) {
             const data = await response.json();
             setSystemStats(data);

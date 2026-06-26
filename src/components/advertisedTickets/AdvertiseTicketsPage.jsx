@@ -7,7 +7,7 @@ const AdvertiseTicketsPage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/advertised-tickets')
+        fetch('https://ticketbari-server-beta.vercel.app/api/advertised-tickets')
             .then(res => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
