@@ -1,11 +1,11 @@
 import React from 'react';
 
-const allUsersManagePage = () => {
-    return (
-        <div className='mt-20'>
-            <h1>all users manage page</h1>
-        </div>
-    );
+const page = () => {
+  return (
+    <div>
+      unavailable
+    </div>
+  );
 };
 
-export default allUsersManagePage;
+export default page;
