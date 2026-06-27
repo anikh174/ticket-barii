@@ -44,7 +44,7 @@ export default function VendorTickets({ userEmail }) {
 
       setLoading(true);
       // সঠিক এন্ডপয়েন্ট এবং সাথে ভেন্ডরের ইমেইল পাস করা হলো
-      const res = await fetch(`https://ticketbari-server-beta.vercel.app/vendor/tickets?email=${userEmail}`);
+      const res = await fetch(`https://ticketbari-server-beta.vercel.app/api/vendor/tickets?email=${userEmail}`);
       const data = await res.json();
       setTickets(data);
     } catch (error) {
