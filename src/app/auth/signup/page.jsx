@@ -136,9 +136,10 @@ export default function SignUpPage() {
         setEmail("");
         setPassword("");
         showSuccessToast();
+        
+        // window.location.href ব্যবহারের মাধ্যমে পেজটি সম্পূর্ণ হার্ড রিলোড হয়ে রিডাইরেক্ট হবে
         setTimeout(() => {
-          router.push(callbackUrl);
-          router.refresh();
+          window.location.href = callbackUrl;
         }, 1500);
       }
     } catch (err) {
@@ -157,7 +158,6 @@ export default function SignUpPage() {
         provider: "google",
         callbackURL: callbackUrl,
       });
-      // Better Auth Google OAuth redirect নিজেই handle করে
     } catch (err) {
       setError("Google sign-in failed. Please try again.");
       setIsGoogleLoading(false);
@@ -296,7 +296,7 @@ export default function SignUpPage() {
         </form>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 ">
+        <div className="flex items-center gap-3 my-4">
           <div className="flex-1 h-px bg-default-200" />
           <span className="text-lg text-default-400 select-none">or</span>
           <div className="flex-1 h-px bg-default-200" />

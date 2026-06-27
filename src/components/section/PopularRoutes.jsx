@@ -60,7 +60,7 @@ export default function PopularRoutes() {
                   Available Now
                 </span>
                 <Link 
-                  href={`/tickets?from=${route.from}&to=${route.to}`}
+                  href={`/tickets`}
                   className="inline-flex items-center justify-center p-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 dark:group-hover:bg-blue-600 transition-colors duration-200 shadow-sm"
                 >
                   <ArrowRight className="w-4 h-4" />
