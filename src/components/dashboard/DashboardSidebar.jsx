@@ -159,7 +159,7 @@ export function DashboardSidebar() {
       <div className="lg:hidden">
         <Drawer>
           <Button
-            className="fixed bottom-10 right-35 z-50 flex items-center gap-2  rounded-b-md border-t-5  bg-linear-to-b from-blue-100 to-none text-gray-400 text-sm active:scale-95 transition-all"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2  rounded-b-md border-t-5  bg-linear-to-b from-blue-100 to-none text-gray-400 text-sm active:scale-95 transition-all"
             variant="solid"
           >
             <LayoutSideContentLeft className="size-4 text-gray-400" />
