@@ -63,7 +63,7 @@ export const metadata = {
 
 export default async function AllTicketsPage({ searchParams }) {
   // Next.js 15+ এ searchParams একটি Promise, তাই await করতে হবে
-  const params = await searchParams;
+  const params = (await searchParams) || {};
   const currentPage = parseInt(params.page) || 1;
 
   // ব্যাকএন্ড API থেকে নির্দিষ্ট পেজের ডেটা ফেচ করা
