@@ -3,6 +3,11 @@ import { getBookingsByUserId } from '@/lib/api/bookings';
 import BookingCard from '@/components/booking/BookingCard';
 import { getUserSession } from '@/lib/core/session';
 
+export const metadata = {
+  title: "User-Booking tickets | Ticket-Bari",
+  description: "User booked tickets management page",
+};
+
 // Next.js-এ searchParams এখন একটি Promise, তাই এটিকে await করতে হবে
 export default async function MyBookingsPage({ searchParams }) {
   // searchParams-কে রিজলভ করা হচ্ছে

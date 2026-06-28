@@ -3,6 +3,11 @@ import { getTickets } from '@/lib/api/tickets';
 import { Ticket } from "lucide-react";
 import TicketFilterSection from '@/components/ticketsFiltering/TicketFilterSection';
 
+export const metadata = {
+  title: "Tickets | Ticket-Bari",
+  description: "All tickets page",
+};
+
 export default async function AllTicketsPage() {
   // ১. এপিআই থেকে টিকিট ডেটা ফেচ করা
   const allTickets = (await getTickets()) || [];

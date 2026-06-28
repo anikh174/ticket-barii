@@ -1,36 +1,211 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🎫 TicketBari - Online Ticket Booking Platform
 
-## Getting Started
+TicketBari is a full-stack MERN-based online ticket booking platform that enables users to discover and book tickets for various transportation services, including Bus, Train, Launch, and Flight. The platform features three distinct user roles—**User**, **Vendor**, and **Admin**—each with dedicated dashboards and functionalities to ensure a seamless booking and management experience.
 
-First, run the development server:
+---
+
+## 🌐 Live Demo
+
+* **Live Site:** https://ticket-barii.vercel.app/
+* **Client Repository:** https://github.com/anikh174/ticket-barii
+* **Server Repository:** https://github.com/anikh174/ticketbari-server
+
+---
+
+## 🔑 Demo Credentials
+
+### 👨‍💼 Admin
+
+**Email:** [admin@gmail.com](mailto:admin@gmail.com)
+
+**Password:** 12345678
+
+### 🏪 Vendor
+
+**Email:** [vendor@gmail.com](mailto:vendor@gmail.com)
+
+**Password:** 12345678
+
+---
+
+# 🚀 Key Features
+
+### 🔐 Authentication & Authorization
+
+* Email & Password Authentication
+* Google Sign-In with BetterAuth
+* JWT Protected APIs
+* Role-Based Access Control
+* Secure Protected Routes
+
+### 👤 User Features
+
+* Browse approved tickets
+* Search tickets by route
+* Filter by transport type
+* Sort tickets by price
+* Ticket details with live countdown
+* Book tickets
+* Stripe payment integration
+* My Booked Tickets
+* Transaction History
+* Responsive user dashboard
+
+### 🏪 Vendor Features
+
+* Vendor Dashboard
+* Add new travel tickets
+* Upload ticket images (ImgBB)
+* Update & Delete tickets
+* Manage booking requests
+* Accept / Reject bookings
+* Revenue overview with charts
+* Track ticket sales
+
+### 👨‍💼 Admin Features
+
+* Manage Users
+* Manage Tickets
+* Approve / Reject vendor tickets
+* Promote users to Vendor/Admin
+* Mark fraudulent vendors
+* Advertise approved tickets
+* Homepage advertisement management
+
+### 🎨 UI & UX
+
+* Fully Responsive Design
+* Dark / Light Mode
+* Sticky Navigation Bar
+* Modern Dashboard UI
+* Pagination
+* Loading Spinner
+* Custom 404 Error Page
+* Interactive Charts & Analytics
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+* Next.js
+* React
+* JavaScript
+* Tailwind CSS
+* HeroUI
+* Gravity UI Icons
+* TanStack Query
+* Axios
+* React Hook Form
+* BetterAuth
+* React Hot Toast
+* Framer Motion
+* Recharts
+
+## Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* JWT
+* BetterAuth
+* Stripe
+* Multer
+* ImgBB
+* CORS
+* Dotenv
+
+---
+
+# 📦 NPM Packages
+
+### Client
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+next
+react
+javascript
+tailwindcss
+@heroui/react
+@gravity-ui/icons
+axios
+better-auth
+react-hook-form
+react-hot-toast
+framer-motion
+recharts
+lucide-react
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Server
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+express
+mongodb
+jsonwebtoken
+bcryptjs
+cors
+dotenv
+stripe
+multer
+axios
+better-auth
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+# 💻 Installation
 
-To learn more about Next.js, take a look at the following resources:
+### Clone the repositories
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git clone https://github.com/anikh174/ticket-barii.git
+git clone https://github.com/anikh174/ticketbari-server.git
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 📈 Core Functionalities
 
-## Deploy on Vercel
+* User Authentication
+* Google Login
+* Role-Based Dashboard
+* Ticket Management
+* Booking System
+* Stripe Payment Gateway
+* Revenue Analytics
+* Advertisement Management
+* Search, Filter & Sorting
+* Pagination
+* Responsive Design
+* Dark & Light Theme
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 🔒 Security
+
+* JWT Protected APIs
+* Secure Authentication
+* Environment Variables
+* MongoDB Credentials Protection
+* Role-Based Authorization
+* Protected Client Routes
+
+---
+
+# 📱 Responsive Design
+
+* ✅ Mobile
+* ✅ Tablet
+* ✅ Desktop
+
+---
+
+# 👨‍💻 Developer
+
+**Anik Hossain**
+
+* GitHub: https://github.com/anikh174
+
+---
+
+## ⭐ If you like this project, please consider giving it a star on GitHub!

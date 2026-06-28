@@ -4,6 +4,11 @@ import TicketDetailsClient from '@/components/ticketDetails/TicketDetailsClient'
 import { notFound } from 'next/navigation';
 import { getUserSession } from '@/lib/core/session';
 
+export const metadata = {
+  title: "Ticket-Details | Ticket-Bari",
+  description: "Tickets Details page",
+};
+
 const TicketDetailsPage = async ({ params }) => {
     const { id } = await params;
     const ticket = await getTicketById(id);

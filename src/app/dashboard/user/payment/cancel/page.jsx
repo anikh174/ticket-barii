@@ -2,6 +2,11 @@ import React from 'react';
 import Link from 'next/link';
 import { XCircle } from 'lucide-react';
 
+export const metadata = {
+  title: "Payment-Cancel | Ticket-Bari",
+  description: "Ticket Cancel Page",
+};
+
 export default function PaymentCancelPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60rem] text-center px-4">

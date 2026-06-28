@@ -1,5 +1,10 @@
 import React from 'react';
 
+export const metadata = {
+  title: "Admin-users-management page | Ticket-Bari",
+  description: "All tickets page",
+};
+
 const UserManagePage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-8">

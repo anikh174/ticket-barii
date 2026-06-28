@@ -2,6 +2,11 @@ import React from 'react';
 import { CheckCircle2, Home, Ticket, ArrowRight } from 'lucide-react';
 import Stripe from 'stripe';
 
+export const metadata = {
+  title: "Payments-Success | Ticket-Bari",
+  description: "Payments Success page",
+};
+
 export default async function PaymentSuccessPage({ searchParams }) {
   const resolvedParams = await searchParams;
   const bookingId = resolvedParams?.booking_id;
