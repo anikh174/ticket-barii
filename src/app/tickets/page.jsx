@@ -3,18 +3,26 @@ import { getTickets } from '@/lib/api/tickets';
 import { Ticket } from "lucide-react";
 import TicketFilterSection from '@/components/ticketsFiltering/TicketFilterSection';
 
+// ডাইনামিক সার্ভার এরর ফিক্স করার জন্য এই লাইনটি অত্যন্ত জরুরি
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Tickets | Ticket-Bari",
   description: "All tickets page",
 };
 
 export default async function AllTicketsPage() {
-  // ১. এপিআই থেকে টিকিট ডেটা ফেচ করা
-  const allTickets = (await getTickets()) || [];
+  // এপিআই থেকে ডেটা ফেচ করা
+  const response = await getTickets();
   
-  // ২. শুধুমাত্র approved টিকিটগুলো ফিল্টার করা (pending বাদ দেওয়া হয়েছে কমেন্ট অনুযায়ী)
+  // সেফটি চেক: রেসপন্স যদি সরাসরি অ্যারে না হয়ে অবজেক্ট হয় (যেমন: response.tickets), সেটা হ্যান্ডেল করা
+  const allTickets = Array.isArray(response) 
+    ? response 
+    : (response?.tickets || response?.data || []);
+  
+  // শুধুমাত্র approved টিকিটগুলো ফিল্টার করা
   const validTickets = allTickets.filter(
-    (ticket) => ticket.status?.toLowerCase() === 'approved'
+    (ticket) => ticket?.status?.toLowerCase() === 'approved'
   );
   
   const totalApproved = validTickets.length;
