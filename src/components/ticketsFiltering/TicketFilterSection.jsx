@@ -32,16 +32,15 @@ export default function TicketFilterSection({ initialTickets = [] }) {
       );
     }
 
-    // Transport Type দিয়ে ফিল্টার (bus, train, air, launch ইত্যাদি)
+    // Transport Type দিয়ে ফিল্টার
     if (transportType !== "all") {
-      // যদি ডাটাবেজে 'launch' বা 'ship' যেকোনো একটা থাকে, সেটা হ্যান্ডেল করবে
       result = result.filter(ticket => {
         const type = ticket.transportType?.toLowerCase();
         if (transportType === "launch") {
           return type === "launch" || type === "ship";
         }
         return type === transportType.toLowerCase();
-      });
+      );
     }
 
     // প্রাইস অনুযায়ী সোর্টিং
@@ -72,6 +71,20 @@ export default function TicketFilterSection({ initialTickets = [] }) {
     }
   };
 
+  // ডেট ফরম্যাট করার জন্য সেফ ফাংশন (Hydration Error এড়াতে)
+  const formatDepartureDate = (dateString) => {
+    if (!dateString) return "No Date";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+      });
+    } catch {
+      return "No Date";
+    }
+  };
+
   return (
     <div className="space-y-8">
       
@@ -97,7 +110,6 @@ export default function TicketFilterSection({ initialTickets = [] }) {
           />
         </div>
 
-        {/* Transport Type Select */}
         <div>
           <select
             value={transportType}
@@ -113,7 +125,6 @@ export default function TicketFilterSection({ initialTickets = [] }) {
           </select>
         </div>
 
-        {/* Sort by Price Select */}
         <div>
           <select
             value={sortByPrice}
@@ -169,7 +180,6 @@ export default function TicketFilterSection({ initialTickets = [] }) {
               <div className="h-full flex flex-col justify-between border border-zinc-200/70 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 backdrop-blur-md shadow-sm hover:shadow-md rounded-3xl overflow-hidden transition-all duration-300">
                 
                 <div>
-                  {/* ইমেজ এবং ট্রান্সপোর্ট টাইপ ব্যাজ */}
                   <div className="relative h-48 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                     <Image
                       src={ticket.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957"}
@@ -188,13 +198,11 @@ export default function TicketFilterSection({ initialTickets = [] }) {
                     )}
                   </div>
 
-                  {/* মেইন টেক্সট কন্টেন্ট */}
                   <div className="p-6">
                     <h2 className="text-lg font-extrabold text-zinc-900 dark:text-zinc-100 line-clamp-1 mb-3">
                       {ticket.title}
                     </h2>
                     
-                    {/* Routes (From -> To) */}
                     <div className="flex items-center justify-between text-sm font-bold bg-zinc-50 dark:bg-zinc-950 p-3.5 rounded-2xl border border-zinc-100 dark:border-zinc-900 mb-4">
                       <div className="flex flex-col">
                         <span className="text-[9px] text-zinc-400 font-medium uppercase tracking-wider mb-0.5">From</span>
@@ -209,16 +217,13 @@ export default function TicketFilterSection({ initialTickets = [] }) {
                       </div>
                     </div>
                     
-                    {/* ডেট এবং কোয়ান্টিটি */}
                     <div className="grid grid-cols-2 gap-3 text-xs mb-4">
                       <div className="flex items-center gap-2 bg-zinc-50/50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100/50 dark:border-zinc-900/50">
                         <CalendarDays className="w-4 h-4 text-blue-500 flex-shrink-0" />
                         <div className="flex flex-col truncate">
                           <span className="text-[9px] text-zinc-400 uppercase tracking-wide">Departure</span>
                           <span className="font-semibold text-zinc-700 dark:text-zinc-300 mt-0.5 truncate">
-                            {ticket.departureDateTime ? new Date(ticket.departureDateTime).toLocaleDateString('en-US', {
-                              month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
-                            }) : "No Date"}
+                            {formatDepartureDate(ticket.departureDateTime)}
                           </span>
                         </div>
                       </div>
@@ -234,7 +239,6 @@ export default function TicketFilterSection({ initialTickets = [] }) {
                       </div>
                     </div>
 
-                    {/* Perks */}
                     {ticket.perks && ticket.perks.length > 0 && (
                       <div className="mt-3">
                         <div className="flex flex-wrap gap-1.5">
@@ -250,7 +254,6 @@ export default function TicketFilterSection({ initialTickets = [] }) {
                   </div>
                 </div>
 
-                {/* প্রাইস এবং বাটন */}
                 <div className="flex flex-col gap-4 px-6 pb-6 pt-0 bg-transparent w-full">
                   <div className="flex justify-between items-center w-full pt-4 border-t border-zinc-100 dark:border-zinc-800">
                     <span className="text-xs text-zinc-400 font-semibold tracking-wide uppercase">Price</span>

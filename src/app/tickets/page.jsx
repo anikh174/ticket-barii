@@ -12,11 +12,9 @@ export default async function AllTicketsPage() {
   // ১. এপিআই থেকে টিকিট ডেটা ফেচ করা
   const allTickets = (await getTickets()) || [];
   
-  // ২. শুধুমাত্র approved এবং active টিকিটগুলো ফিল্টার করা (pending বাদ দেওয়া হয়েছে)
+  // ২. শুধুমাত্র approved টিকিটগুলো ফিল্টার করা (pending বাদ দেওয়া হয়েছে কমেন্ট অনুযায়ী)
   const validTickets = allTickets.filter(
-    (ticket) => 
-      ticket.status?.toLowerCase() === 'approved' || 
-      ticket.status?.toLowerCase() === 'pending'
+    (ticket) => ticket.status?.toLowerCase() === 'approved'
   );
   
   const totalApproved = validTickets.length;
@@ -42,7 +40,6 @@ export default async function AllTicketsPage() {
       </div>
 
       {/* --- ফিল্টার এবং ডাইনামিক গ্রিড সেকশন --- */}
-      {/* এখানে initialTickets প্রপ্স হিসেবে টিকিটগুলো পাস করা হয়েছে */}
       <TicketFilterSection initialTickets={validTickets} />
       
     </div>
