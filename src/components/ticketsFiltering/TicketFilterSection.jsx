@@ -40,7 +40,7 @@ export default function TicketFilterSection({ initialTickets = [] }) {
           return type === "launch" || type === "ship";
         }
         return type === transportType.toLowerCase();
-      );
+      }); // এখানে ব্র্যাকেট ফিক্স করা হয়েছে
     }
 
     // প্রাইস অনুযায়ী সোর্টিং
